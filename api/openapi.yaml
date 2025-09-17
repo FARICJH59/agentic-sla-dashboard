@@ -1,0 +1,70 @@
+openapi: "3.0.1"
+info:
+  title: Agentic Orchestrator API
+  version: "0.1.0"
+paths:
+  /v1/agents/{agent_id}/execute:
+    post:
+      summary: "Execute agent task"
+      operationId: "executeAgentTask"
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentAction"
+      responses:
+        "200":
+          description: "Agent task queued"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  job_id:
+                    type: string
+components:
+  schemas:
+    AgentAction:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          description: "High-level action name, e.g., 'run_task', 'apply_plan', 'replan'"
+        repo:
+          type: object
+          description: "Optional target repository"
+          properties:
+            owner:
+              type: string
+            name:
+              type: string
+        installationId:
+          type: integer
+          description: "Optional GitHub App installation id to use for this action"
+        params:
+          type: object
+          description: "Arbitrary action parameters; must not contain secrets in plaintext"
+          additionalProperties: true
+        request_id:
+          type: string
+          description: "Client-supplied idempotency key for deduplication"
+      example:
+        action: "run_task"
+        repo:
+          owner: "FARICJH59"
+          name: "agentic-sla-dashboard"
+        installationId: 123456
+        params:
+          plan_id: "abc123"
+          dry_run: true
